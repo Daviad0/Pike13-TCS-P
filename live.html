@@ -1,0 +1,145 @@
+<head>
+  <title>Hiya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="maincontainer">
+    
+    <div class="phase" data-num="0" style="display:none;opacity:0">
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Your Card...</span>
+      <span style="font-size:24px;font-weight:600;display:block;margin:20px" class="text">- or -</span>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student">Student Check In</div>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="staff">Staff Clock In / Out</div>
+    </div>
+    
+    
+  </div>
+  <div class="maincontainer">
+    <div class="phase" data-num="1" style="display:none;opacity:0">
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Select Thyself:</span>
+      <div id="phase1selections"></div>
+    </div>
+  </div>
+  
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+  var ws = new WebSocket("ws://localhost:1337");
+
+  var token = undefined;
+  var currentPhase = 0;
+  var phasedata = "";
+
+  function hidePhase(){
+    document.querySelector(".phase[data-num='" + currentPhase + "']").style.opacity = "0";
+    var prev = currentPhase;
+    setTimeout(function(){
+      document.querySelector(".phase[data-num='" + prev + "']").style.display = "none";
+    },310);
+  }
+  function showPhase(num){
+    currentPhase = num;
+    document.querySelector(".phase[data-num='" + num + "']").style.display = "";
+    handlePhaseLogic();
+  }
+
+  function handlePhaseLogic(){
+    switch(currentPhase){
+      case 1:
+        if(phasedata == "student"){
+          var now = new Date();
+          now.setHours(now.getHours()-1);
+          var then = new Date();
+          then.setHours(then.getHours()+1);
+          document.getElementById("phase1selections").innerHTML = "";
+          apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from=" + now.toString() + "&to=" + then.toString(), {}, "GET", function(data){
+            data["event_occurrences"].forEach(eO => {
+              if(!eO["attendance_complete"]){
+                eO["people"].forEach(stu => {
+                 var studentName = stu["name"].split(" ")[0] + " " + stu["name"].split(" ")[1].substring(0,1) + "."; document.getElementById("phase1selections").innerHTML += `
+                  <div class="box signin" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:500" data-phase="1" data-data="student" data-id="${eO["id"]}" data-signin="${studentName}" data-signinid=${stu["id"]}><span style="font-weight:600">${studentName}</span> with <i>${eO["staff_members"][0]["name"]}</i></div>
+                `;
+                });
+              }
+              
+            });
+  Array.from( document.getElementsByClassName("signin")).forEach(e => {
+              e.addEventListener("click", function(evt){
+                
+                var signin = evt.srcElement.dataset.signin;
+                var signinid = evt.srcElement.dataset.signinid;
+                var type = evt.srcElement.dataset.data;
+                var id = evt.srcElement.dataset.id;
+
+                apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences/" + id + "/visits", {}, "GET", function(data){
+                  var studentVisit = data.visits.find(v => v.person.id == signinid);
+                  console.log(data.visits);
+                  console.log(signinid);
+                   apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+studentVisit.id,{visit: {state_event: "complete"}}, "PUT", function(data){
+                  hidePhase();
+                     showPhase(0);
+                })
+                 })
+                
+                
+              })
+            });
+          });
+          
+        }
+        break;
+    }
+    setTimeout(function(){
+      document.querySelector(".phase[data-num='" + currentPhase + "']").style.opacity = "1";
+    },10);
+  }
+  
+  $.ajax({
+    url: '/token',
+    type: "GET",
+    headers:{
+      "Access-Control-Allow-Origin" : "*"
+    },
+    success: function(data){
+      token = data["token"];
+      
+      showPhase(0);
+
+      apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences/173672903/visits", {}, "GET", function(data){
+                   console.log(data);
+                 })
+      
+    },
+    error: function(data){
+      window.location = "https://pike13.com/oauth/authorize?client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&response_type=code&redirect_uri=https://Pike13-TCS-P.daveeddigs.repl.co/auth"
+    }
+  })
+  
+  function apiReq(url, data, method, callback){
+    
+    $.ajax({
+      url: url + (url.includes("?") ? "&access_token="+token : "?access_token="+token),
+      type: method,
+      data: data,
+      success: function(data){
+        callback(data);
+      },
+    })
+  }
+
+                 
+
+
+  Array.from(document.getElementsByClassName("showphase")).forEach(e=>{
+    e.addEventListener("click", function(evt){
+      if(evt.srcElement.dataset.data != undefined){
+        phasedata = evt.srcElement.dataset.data;
+      }
+      hidePhase();
+      showPhase(parseInt(evt.srcElement.dataset.phase));
+    });
+  })
+  
+  
+</script>

@@ -1,0 +1,38 @@
+<head>
+  <title>Hiya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet"/>
+</head>
+<body>
+  <div class="maincontainer">
+    <h1 class="text">Authenticating...</h1>
+    <h3 class="text" id="authCode">Auth Code: </h3>
+    <h3 class="text" id="accessCode">Auth Code: </h3>
+  </div>
+  
+</body>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  document.getElementById("authCode").innerHTML = "Auth Code: " + urlParams.get("code");
+  $.ajax({
+    url: 'https://pike13.com/oauth/token?grant_type=authorization_code&code=' + urlParams.get("code") + '&redirect_uri=' + "https://Pike13-TCS-P.daveeddigs.repl.co/auth" + '&client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&client_secret=azzRtOXXSy6yCHrPkHwhGKC4qx1UTrNxhSFrDcWz',
+    type: "POST",
+    success: function(data){
+      document.getElementById("accessCode").innerHTML = "Access Code: " + data["access_token"];
+      $.ajax({
+        url: "/token",
+        type: "POST",
+        data:{
+          token: data["access_token"]
+        },
+        success: function(data){
+          window.location = "/live"
+        }
+      })
+    }
+  })
+</script>
