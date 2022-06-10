@@ -19,7 +19,7 @@
   const urlParams = new URLSearchParams(queryString);
   document.getElementById("authCode").innerHTML = "Auth Code: " + urlParams.get("code");
   $.ajax({
-    url: 'https://pike13.com/oauth/token?grant_type=authorization_code&code=' + urlParams.get("code") + '&redirect_uri=' + "https://Pike13-TCS-P.daveeddigs.repl.co/auth" + '&client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&client_secret=azzRtOXXSy6yCHrPkHwhGKC4qx1UTrNxhSFrDcWz',
+    url: 'https://pike13.com/oauth/token?grant_type=authorization_code&code=' + urlParams.get("code") + '&redirect_uri=' + "http://localhost:1337/auth" + '&client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&client_secret=azzRtOXXSy6yCHrPkHwhGKC4qx1UTrNxhSFrDcWz',
     type: "POST",
     success: function(data){
       document.getElementById("accessCode").innerHTML = "Access Code: " + data["access_token"];

@@ -9,15 +9,15 @@
     <div class="phase" data-num="0" style="display:none;opacity:0">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Your Card...</span>
       <span style="font-size:24px;font-weight:600;display:block;margin:20px" class="text">- or -</span>
-      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student">Student Check In</div>
-      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="staff">Staff Clock In / Out</div>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student"><span style="pointer-events: none;">Student Check In</span></div>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="staff"><span style="pointer-events: none;">Staff Clock In / Out</span></div>
     </div>
     
     
   </div>
   <div class="maincontainer">
     <div class="phase" data-num="1" style="display:none;opacity:0">
-      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Select Thyself:</span>
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Please Select Thyself:</span>
       <div id="phase1selections"></div>
     </div>
   </div>
@@ -25,7 +25,7 @@
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script>
-  var ws = new WebSocket("ws://localhost:1337");
+  var ws = new WebSocket("ws://localhost:1338");
 
   var token = undefined;
   var currentPhase = 0;
@@ -44,6 +44,14 @@
     handlePhaseLogic();
   }
 
+  var messages = [
+    "Select Thyself",
+    "Find Yourself Here",
+    "Select 'You' Below",
+    "Pick Yourself",
+    "Who Are You?"
+  ]
+
   function handlePhaseLogic(){
     switch(currentPhase){
       case 1:
@@ -54,11 +62,20 @@
           then.setHours(then.getHours()+1);
           document.getElementById("phase1selections").innerHTML = "";
           apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from=" + now.toString() + "&to=" + then.toString(), {}, "GET", function(data){
+            if(data["event_occurrences"].length == 0){
+              document.getElementById("selectionText").innerHTML = "There are no lessons right now!";
+              setTimeout(function(){
+                hidePhase();
+                showPhase(0);
+              },3000);
+              return;
+            }
+            document.getElementById("selectionText").innerHTML = messages[Math.random()*messages.length|0];
             data["event_occurrences"].forEach(eO => {
               if(!eO["attendance_complete"]){
                 eO["people"].forEach(stu => {
                  var studentName = stu["name"].split(" ")[0] + " " + stu["name"].split(" ")[1].substring(0,1) + "."; document.getElementById("phase1selections").innerHTML += `
-                  <div class="box signin" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:500" data-phase="1" data-data="student" data-id="${eO["id"]}" data-signin="${studentName}" data-signinid=${stu["id"]}><span style="font-weight:600">${studentName}</span> with <i>${eO["staff_members"][0]["name"]}</i></div>
+                  <div class="box signin" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:500" data-phase="1" data-data="student" data-id="${eO["id"]}" data-signin="${studentName}" data-signinid=${stu["id"]}><span style="pointer-events:none"><span style="font-weight:600">${studentName}</span> with <i>${eO["staff_members"][0]["name"]}</i></span></div>
                 `;
                 });
               }
@@ -112,7 +129,7 @@
       
     },
     error: function(data){
-      window.location = "https://pike13.com/oauth/authorize?client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&response_type=code&redirect_uri=https://Pike13-TCS-P.daveeddigs.repl.co/auth"
+      window.location = "https://pike13.com/oauth/authorize?client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&response_type=code&redirect_uri=http://localhost:1337/auth"
     }
   })
   

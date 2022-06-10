@@ -2,13 +2,13 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
 
-const port = 80
+const port = 1337;
 
 var authToken = "";
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + "/index.html")
+  res.sendFile(__dirname + "/live.html")
 })
 
 app.get('/auth', (req, res) => {
@@ -36,3 +36,4 @@ app.get("/token", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
