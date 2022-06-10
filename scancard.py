@@ -9,16 +9,21 @@ import threading
 
 GPIO.setwarnings(False)
 
-writeQueue = ["0:12345678"]
+writeQueue = ["0:7852099"]
 
 r = SMFRC()
 
 clients = []
+messages = []
 
-def handleCard(websocket, path):
+async def handleCard(websocket, path):
     global clients
-    print("New client connected")
     clients.append(websocket)
+    while True:
+        m = await websocket.recv()
+        while len(messages) < 1:
+            wait(0.1)
+        await websocket.send(messages.pop(0))
 
 def send_message():
     while True:
@@ -34,14 +39,17 @@ def send_message():
                 id, t = r.read()
                 textParts = str(t).split(":")
                 print("Read",textParts)
-                for client in clients:
-                    client.send(text.format())
+                toGive = textParts[0] + ":" + textParts[1]
+                messages.append(toGive)
                     
             
             
         except:
             print("Err Reading Card...")
             wait(3)
+        # id = input("Sign in ID: ")
+        # toGive = "0" + ":" + id
+        # messages.append(toGive)
         
 
 

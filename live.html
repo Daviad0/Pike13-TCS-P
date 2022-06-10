@@ -21,11 +21,59 @@
       <div id="phase1selections"></div>
     </div>
   </div>
+  <div class="maincontainer">
+    <div class="phase" data-num="2" style="display:none;opacity:0">
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="confirmationMessage">You're Good to Go!</span>
+    </div>
+  </div>
   
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script>
   var ws = new WebSocket("ws://localhost:1338");
+  ws.onopen = function (event) {
+    console.log("CONNECTED TO WS");
+    ws.send("Here's some text that the server is urgently awaiting!");
+  };
+  ws.onmessage = function(e){
+    console.log(e.data);
+    var parts = e.data.split(":");
+    if(parts[0] == "0"){
+      // student signing in
+      var id = parts[1].substring(0, parts[1].indexOf(" "));
+      var now = new Date();
+      now.setHours(0);
+      now.setMinutes(0);
+      var then = new Date();
+      then.setHours(23);
+      then.setMinutes(59);
+      apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/people/" + id + "/visits?from="+now.toString() + "&to=" + then.toString(), {}, "GET", function(d){
+        // find closest date to now
+        var closest = null;
+        var closestDiff = null;
+        var data = d["visits"];
+        for(var i = 0; i < data.length; i++){
+          var diff = Math.abs(new Date(data[i]["event_occurrence"].start_at) - new Date().getTime());
+          if(closest == null || diff < closestDiff){
+            closest = data[i];
+            closestDiff = diff;
+          }
+        }
+        console.log(closest)
+
+         apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+closest.id,{visit: {state_event: "complete"}}, "PUT", function(data){
+        
+          hidePhase();
+          document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, Card User!";
+           showPhase(2);
+           setTimeout(function(){
+            hidePhase();
+            showPhase(0);
+           },3000);
+      })
+       })
+    }
+  }
 
   var token = undefined;
   var currentPhase = 0;
@@ -57,7 +105,7 @@
       case 1:
         if(phasedata == "student"){
           var now = new Date();
-          now.setHours(now.getHours()-1);
+          now.setHours(now.getHours()-8);
           var then = new Date();
           then.setHours(then.getHours()+1);
           document.getElementById("phase1selections").innerHTML = "";
@@ -91,11 +139,15 @@
 
                 apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences/" + id + "/visits", {}, "GET", function(data){
                   var studentVisit = data.visits.find(v => v.person.id == signinid);
-                  console.log(data.visits);
-                  console.log(signinid);
                    apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+studentVisit.id,{visit: {state_event: "complete"}}, "PUT", function(data){
-                  hidePhase();
-                     showPhase(0);
+                  
+                    hidePhase();
+                    document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, " + signin + "!";
+                     showPhase(2);
+                     setTimeout(function(){
+                      hidePhase();
+                      showPhase(0);
+                     },3000);
                 })
                  })
                 
