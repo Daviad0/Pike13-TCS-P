@@ -1,4 +1,4 @@
-from MFRC522 import SimpleMFRC522 as SMFRC
+from mfrc522 import SimpleMFRC522 as SMFRC
 import RPi.GPIO as GPIO
 from time import sleep as wait
 import asyncio
@@ -22,7 +22,8 @@ def send_message():
         
         try:
             print("Please scan your card")
-            id, text = r.read()
+            r.write("HI")
+            print("Card written")
             
         except:
             print("Err Reading Card...")
