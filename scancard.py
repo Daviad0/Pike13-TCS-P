@@ -17,8 +17,6 @@ clients = []
 messages = []
 
 async def handleCard(websocket, path):
-    global clients
-    clients.append(websocket)
     while True:
         m = await websocket.recv()
         while len(messages) < 1:
