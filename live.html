@@ -67,6 +67,7 @@
         hidePhase();
         showPhase(0);
       },3000);
+      ws.send("All good!");
       return;
     }
     var parts = e.data.split(":");
@@ -153,6 +154,7 @@
                 hidePhase();
                 showPhase(0);
               },3000);
+
               return;
             }
             document.getElementById("selectionText").innerHTML = messages[Math.random()*messages.length|0];
