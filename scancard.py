@@ -1,3 +1,4 @@
+from nbformat import write
 from mfrc522 import SimpleMFRC522 as SMFRC
 import RPi.GPIO as GPIO
 from time import sleep as wait
@@ -7,6 +8,8 @@ import threading
 
 
 GPIO.setwarnings(False)
+
+writeQueue = ["0:12345678"]
 
 r = SMFRC()
 
@@ -21,16 +24,26 @@ def send_message():
     while True:
         
         try:
-            print("Please scan your card")
-            r.write("HI")
-            print("Card written")
+            if(len(writeQueue) > 0):
+                print("Please scan to WRITE (" + writeQueue[0] + ")")
+                r.write(writeQueue[0].encode())
+                print("Successfully wrote to card")
+                writeQueue.pop(0)
+            else:
+                print("Please scan to READ:")
+                id, t = r.read()
+                t = t.decode()
+                textParts = str(t).split(":")
+                print("Read",textParts)
+                for client in clients:
+                    client.send(text.format())
+                    
+            
             
         except:
             print("Err Reading Card...")
             wait(3)
-        for client in clients:
-            client.send(text.format())
-            print("Sent to a client")
+        
 
 
 card = threading.Thread(target=send_message)
