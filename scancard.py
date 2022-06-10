@@ -1,4 +1,4 @@
-from nbformat import write
+
 from mfrc522 import SimpleMFRC522 as SMFRC
 import RPi.GPIO as GPIO
 from time import sleep as wait
@@ -26,7 +26,7 @@ def send_message():
         try:
             if(len(writeQueue) > 0):
                 print("Please scan to WRITE (" + writeQueue[0] + ")")
-                r.write(writeQueue[0].encode())
+                r.write(writeQueue[0])
                 print("Successfully wrote to card")
                 writeQueue.pop(0)
             else:
