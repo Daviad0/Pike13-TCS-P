@@ -3,10 +3,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="style.css" rel="stylesheet"/>
 </head>
-<body>
+<body style="transition: 0.4s all ease-in-out;" id="body">
   <div class="maincontainer">
     
-    <div class="phase" data-num="0" style="display:none;opacity:0">
+    <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Your Card...</span>
       <span style="font-size:24px;font-weight:600;display:block;margin:20px" class="text">- or -</span>
       <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student"><span style="pointer-events: none;">Student Check In</span></div>
@@ -16,13 +16,13 @@
     
   </div>
   <div class="maincontainer">
-    <div class="phase" data-num="1" style="display:none;opacity:0">
+    <div class="phase" data-num="1" style="display:none;opacity:0" data-bg="">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Please Select Thyself:</span>
       <div id="phase1selections"></div>
     </div>
   </div>
   <div class="maincontainer">
-    <div class="phase" data-num="2" style="display:none;opacity:0">
+    <div class="phase" data-num="2" style="display:none;opacity:0" data-bg="#34eb4f">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="confirmationMessage">You're Good to Go!</span>
     </div>
   </div>
@@ -91,6 +91,8 @@
   }
   function showPhase(num){
     currentPhase = num;
+    var color = document.querySelector(".phase[data-num='" + num + "']").dataset.bg;
+    document.getElementById("body").style.backgroundColor = color;
     document.querySelector(".phase[data-num='" + num + "']").style.display = "";
     handlePhaseLogic();
   }
