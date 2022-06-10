@@ -17,6 +17,8 @@ clients = []
 messages = []
 
 async def handleCard(websocket, path):
+    global messages
+    messages = []
     while True: 
         m = await websocket.recv()
         while len(messages) < 1:
@@ -47,6 +49,7 @@ def send_message():
             
         except:
             print("Err Reading Card...")
+            messages.append("ERROR")
             wait(3)
         # id = input("Sign in ID: ")
         # toGive = "0" + ":" + id

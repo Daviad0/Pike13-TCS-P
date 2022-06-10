@@ -22,8 +22,13 @@
     </div>
   </div>
   <div class="maincontainer">
-    <div class="phase" data-num="2" style="display:none;opacity:0" data-bg="#34eb4f">
+    <div class="phase" data-num="2" style="display:none;opacity:0" data-bg="#1fb81a">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="confirmationMessage">You're Good to Go!</span>
+    </div>
+  </div>
+  <div class="maincontainer">
+    <div class="phase" data-num="3" style="display:none;opacity:0" data-bg="#c91c1c">
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Again...</span>
     </div>
   </div>
   
@@ -37,6 +42,16 @@
   };
   ws.onmessage = function(e){
     console.log(e.data);
+    if(e.data == "ERROR"){
+      hidePhase();
+            
+      showPhase(3);
+      setTimeout(function(){
+        hidePhase();
+        showPhase(0);
+      },3000);
+      return;
+    }
     var parts = e.data.split(":");
     if(parts[0] == "0"){
       // student signing in
