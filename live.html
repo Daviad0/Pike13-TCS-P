@@ -62,14 +62,17 @@
         console.log(closest)
 
          apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+closest.id,{visit: {state_event: "complete"}}, "PUT", function(data){
-        
-          hidePhase();
-          document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, Card User!";
-           showPhase(2);
-           setTimeout(function(){
+          ws.send("All good!");
+          apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/people/"+id,{}, "GET", function(data){
             hidePhase();
-            showPhase(0);
-           },3000);
+            document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, " + data["people"][0]["first_name"] + "!";
+            showPhase(2);
+            setTimeout(function(){
+              hidePhase();
+              showPhase(0);
+            },3000);
+          });
+          
       })
        })
     }
