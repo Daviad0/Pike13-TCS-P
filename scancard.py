@@ -33,6 +33,7 @@ def send_message():
                 print("Please scan to WRITE (" + writeQueue[0] + ")")
                 r.write(writeQueue[0])
                 print("Successfully wrote to card")
+                wait(1)
                 writeQueue.pop(0)
             else:
                 print("Please scan to READ:")
@@ -40,7 +41,9 @@ def send_message():
                 textParts = str(t).split(":")
                 print("Read",textParts)
                 toGive = textParts[0] + ":" + textParts[1]
+                
                 messages.append(toGive)
+                wait(3)
                     
             
             
