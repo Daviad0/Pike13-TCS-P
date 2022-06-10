@@ -32,7 +32,6 @@ def send_message():
             else:
                 print("Please scan to READ:")
                 id, t = r.read()
-                t = t.decode()
                 textParts = str(t).split(":")
                 print("Read",textParts)
                 for client in clients:
