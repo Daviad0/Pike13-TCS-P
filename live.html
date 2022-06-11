@@ -10,8 +10,8 @@
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Your Card...</span>
       <span style="font-size:24px;font-weight:600;display:block;margin:20px" class="text">- or -</span>
-      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student"><span style="pointer-events: none;">Student Check In</span></div>
-      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="staff"><span style="pointer-events: none;">Staff Clock In / Out</span></div>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student"><span style="pointer-events: none;">Select Your Class</span></div>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="4" data-data="student"><span style="pointer-events: none;">Write to Card</span></div>
     </div>
     
     
@@ -26,7 +26,7 @@
     <div class="phase" data-num="2" style="display:none;opacity:0" data-bg="#1fb81a">
       
       <div style="width:100%;display:block">
-        <span style="font-size:120px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded">check</span>
+        <span style="font-size:120px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded" id="confirmationIcon">check</span>
       </div>
       <div style="width:100%;display:block">
         <span style="font-size:40px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text" id="confirmationMessage">You're Good to Go!</span>
@@ -43,6 +43,27 @@
       </div>
       <div style="width:100%;display:block">
         <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Again...</span>
+      </div>
+      
+    </div>
+  </div>
+  <div class="maincontainer">
+    
+    <div class="phase" data-num="4" style="display:none;opacity:0" data-bg="">
+      <div style="width:100%;display:block">
+        <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Sending Message</span>
+      </div>
+      
+    </div>
+  </div>
+  <div class="maincontainer">
+    
+    <div class="phase" data-num="5" style="display:none;opacity:0" data-bg="#bfa004">
+      <div style="width:100%;display:block">
+        <span style="font-size:120px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded">help</span>
+      </div>
+      <div style="width:100%;display:block">
+        <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Student Isn't Scheduled for Today!</span>
       </div>
       
     </div>
@@ -85,28 +106,41 @@
         var closest = null;
         var closestDiff = null;
         var data = d["visits"];
-        for(var i = 0; i < data.length; i++){
-          var diff = Math.abs(new Date(data[i]["event_occurrence"].start_at) - new Date().getTime());
-          if(closest == null || diff < closestDiff){
-            closest = data[i];
-            closestDiff = diff;
-          }
-        }
-        console.log(closest)
-
-         apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+closest.id,{visit: {state_event: "complete"}}, "PUT", function(data){
+        if(d["visits"].length == 0){
+          // no visits
+          hidePhase();
+          showPhase(5);
           ws.send("All good!");
-          apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/people/"+id,{}, "GET", function(data){
+          setTimeout(function(){
             hidePhase();
-            document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, " + data["people"][0]["first_name"] + "!";
-            showPhase(2);
-            setTimeout(function(){
+            showPhase(0);
+          },3000);
+        }else{
+          for(var i = 0; i < data.length; i++){
+            var diff = Math.abs(new Date(data[i]["event_occurrence"].start_at) - new Date().getTime());
+            if(closest == null || diff < closestDiff){
+              closest = data[i];
+              closestDiff = diff;
+            }
+          }
+          console.log(closest)
+  
+           apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+closest.id,{visit: {state_event: "complete"}}, "PUT", function(data){
+            ws.send("All good!");
+            apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/people/"+id,{}, "GET", function(data){
               hidePhase();
-              showPhase(0);
-            },3000);
-          });
-          
-      })
+              document.getElementById("confirmationIcon").innerHTML = "credit_score";
+              document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, " + data["people"][0]["first_name"] + "!";
+              showPhase(2);
+              setTimeout(function(){
+                hidePhase();
+                showPhase(0);
+              },3000);
+            });
+            
+          })
+        }
+        
        })
     }
   }
@@ -181,6 +215,7 @@
                    apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+studentVisit.id,{visit: {state_event: "complete"}}, "PUT", function(data){
                   
                     hidePhase();
+                    document.getElementById("confirmationIcon").innerHTML = "check";
                     document.getElementById("confirmationMessage").innerHTML = "You're Good to Go, " + signin + "!";
                      showPhase(2);
                      setTimeout(function(){
@@ -196,6 +231,15 @@
           });
           
         }
+        break;
+      case 4:
+        apiReq("/message", {message: "0:9045671 "}, "POST", function(data){
+
+        })
+        setTimeout(function(){
+          hidePhase();
+          showPhase(0);
+         },3000);
         break;
     }
     setTimeout(function(){

@@ -1,18 +1,20 @@
 
-from mfrc522 import SimpleMFRC522 as SMFRC
-import RPi.GPIO as GPIO
+# from mfrc522 import SimpleMFRC522 as SMFRC
+# import RPi.GPIO as GPIO
 from time import sleep as wait
 import asyncio
+
+from nbformat import write
 import websockets
 import threading
 import requests
 
 
-GPIO.setwarnings(False)
+# GPIO.setwarnings(False)
 
-writeQueue = ["0:7852099"]
+writeQueue = []
 
-r = SMFRC()
+# r = SMFRC()
 
 clients = []
 messages = []
@@ -33,21 +35,18 @@ def send_message():
         
         
         try:
+            
+            obj = requests.get("http://localhost:1337/message").json()
+            if(obj["m"] == True):
+                writeQueue.append(obj["message"])
+            
             if(len(writeQueue) > 0):
-                print("Please scan to WRITE (" + writeQueue[0] + ")")
-                r.write(writeQueue[0])
-                print("Successfully wrote to card")
-                wait(1)
-                writeQueue.pop(0)
+                msg = writeQueue.pop(0)
+                messages.push(msg)
+                print("sending ")
             else:
-                print("Please scan to READ:")
-                id, t = r.read()
-                textParts = str(t).split(":")
-                print("Read",textParts)
-                toGive = textParts[0] + ":" + textParts[1]
-                
-                messages.append(toGive)
-                wait(3)
+                r = input("READ: ")
+                messages.push(r)
                     
             
             

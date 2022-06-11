@@ -3,6 +3,7 @@ const app = express()
 const bodyParser = require('body-parser');
 
 const port = 1337;
+var messages = [];
 
 var authToken = "";
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,6 +25,18 @@ app.post("/token", (req, res) => {
   
   res.status(200).send({success: true});
 })
+app.post("/message", (req,res)=>{
+  messages.push(req.body.message);
+  res.status(200).send({success: true});
+})
+app.get("/message", (req,res)=> {
+  if(messages.length > 0){
+    res.status(200).send({m: true, message: messages.pop()});
+  } 
+  else{
+    res.status(200).send({m: false});
+  }
+});
 
 app.get("/token", (req, res) => {
   if(authToken != ""){
