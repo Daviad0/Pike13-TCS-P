@@ -7,11 +7,18 @@
 <body style="transition: 0.4s all ease-in-out;" id="body">
   <div class="maincontainer">
     
+
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
-      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text">Please Scan Your Card...</span>
-      <span style="font-size:24px;font-weight:600;display:block;margin:20px" class="text">- or -</span>
-      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="1" data-data="student"><span style="pointer-events: none;">Select Your Class</span></div>
-      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:10px;font-weight:600" data-phase="4" data-data="student"><span style="pointer-events: none;">Write to Card</span></div>
+      <div style="display: flex;justify-content:center;align-items:center">
+        <div style="margin:20px">
+          <span style="font-size:200px;display:block" class="text material-symbols-rounded">credit_card</span>
+          <span style="font-size:20px;margin:20px;font-weight:600" class="text"><i>SCAN Your Card</i></span>
+        </div>
+        
+      <span style="font-size:24px;font-weight:600;margin:20px" class="text">or</span>
+      <div class="box showphase" style="border-radius:20px;display:inline-block;padding:20px;margin:20px;font-weight:600;font-size:20px" data-phase="1" data-data="student"><span style="pointer-events: none;">Select Your Class</span></div>
+      </div>
+      
     </div>
     
     
@@ -79,6 +86,9 @@
       </div>
       
     </div>
+  </div>
+  <div class="timecontainer">
+    <span style="font-size:20px;display:block;margin:20px" class="text" id="time">12:00 PM</span>
   </div>
   
 </body>
@@ -338,6 +348,22 @@
       showPhase(parseInt(evt.srcElement.dataset.phase));
     });
   })
+
+  setInterval(function(){
+    var d = new Date();
+    var addon = "AM";
+    var h = d.getHours();
+    if(h >= 12){
+      addon = "PM";
+      if(h > 12){
+        h -= 12;
+      }
+    }
+    var m = d.getMinutes();
+    var s = d.getSeconds();
+    document.getElementById("time").innerHTML = h + ":" + (m.toString().padStart(2, "0")) + ":" + (s.toString().padStart(2, "0")) + " " + addon;
+  }, 50);
+
   
   
 </script>
