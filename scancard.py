@@ -10,7 +10,7 @@ import requests
 
 GPIO.setwarnings(False)
 
-writeQueue = ["0:7852099"]
+writeQueue = []
 
 r = SMFRC()
 

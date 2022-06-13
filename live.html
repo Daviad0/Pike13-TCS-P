@@ -167,11 +167,13 @@
 
       apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from="+now.toString() + "&to=" + then.toString() + "&staff_member_ids=" + id, {}, "GET", function(data){
         var finalHTML = "";
+        console.log(data);
+        data["event_occurrences"] = data["event_occurrences"].sort((a,b) => new Date(a["start_at"]).getTime() > new Date(b["start_at"]).getTime())
         for(var i = 0; i < data["event_occurrences"].length; i++){
-          finalHTML += `<span style="font-size:20px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text">You're Good to Go!`;
+          finalHTML += `<span style="font-size:20px;font-weight:600;display:inline-block;margin:5px;width:60%" class="text">`;
             var time = new Date(data["event_occurrences"][i]["start_at"]);
-            finalHTML += `${time.getHours() + ":" + time.getMinutes().toString().padStart(2, "0")} with `;
-            data["event_occurences"][i]["people"].forEach(function(person){
+            finalHTML += `${(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()) + ":" + time.getMinutes().toString().padStart(2, "0")} with `;
+            data["event_occurrences"][i]["people"].forEach(function(person){
               finalHTML += person["name"] + " ";
             });
           finalHTML += `</span></br>`;
