@@ -180,7 +180,7 @@
         console.log(data);
         data["event_occurrences"] = data["event_occurrences"].sort((a,b) => new Date(a["start_at"]).getTime() > new Date(b["start_at"]).getTime())
         for(var i = 0; i < data["event_occurrences"].length; i++){
-          finalHTML += `<span style="font-size:20px;font-weight:600;display:inline-block;margin:5px;width:60%" class="text">`;
+          finalHTML += `<span style="font-size:24px;font-weight:600;display:inline-block;margin:5px;width:60%" class="text">`;
             var time = new Date(data["event_occurrences"][i]["start_at"]);
             finalHTML += `${(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()) + ":" + time.getMinutes().toString().padStart(2, "0")} with `;
             data["event_occurrences"][i]["people"].forEach(function(person){
