@@ -520,6 +520,9 @@
 
     if(m >= 58 || m < 2){
       document.getElementById("body").classList = "warningpulse";
+      if(m == 0 && s == 0){
+        init();
+      }
     }else{
       document.getElementById("body").classList = "";
     }
