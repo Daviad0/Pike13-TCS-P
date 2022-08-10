@@ -86,8 +86,8 @@
   </div>
   <div class="timecontainer">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <span style="font-size:60px;margin:20px;font-weight:bold" class="text" id="time">12:00 PM</span>
-      <span style="font-size:40px;margin:20px;" class="text">Aug. 9th, 2022</span>
+      <span style="font-size:60px;margin:20px;font-weight:bold" class="text" id="time"></span>
+      <span style="font-size:40px;margin:20px;" class="text" id="date"></span>
     </div>
     
   </div>
@@ -95,6 +95,7 @@
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script>
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var ws = new WebSocket("ws://localhost:1338");
   ws.onopen = function (event) {
     console.log("CONNECTED TO WS");
@@ -366,6 +367,8 @@
             return new Date(a["start_at"]) - new Date(b["start_at"]);
           });
           let appthtml = "";
+          var appts = 0;
+          var more = false;
           specAppts.forEach(a => {
             var time = new Date(a["start_at"]);
             var amorpm = time.getHours() >= 12 ? "PM" : "AM";
@@ -373,32 +376,37 @@
             console.log(timestamp + " " + (time < anchorTime) + " " + Math.abs(time - anchorTime));
             var isnow = (time < anchorTime && Math.abs(time - anchorTime) < 3600000);
             let stuhtml = "";
-            if(a['people'].length <= 2){
-              a["people"].forEach(p => {
-                stuhtml += `
-                <div class="box" style="border-radius: 12px;width:30%;margin:5px">
-                  ${p["name"]}
+            if(appts < 3){
+              if(a['people'].length <= 2){
+                a["people"].forEach(p => {
+                  stuhtml += `
+                  <div class="box boxshadow" style="border-radius: 12px;width:30%;margin:5px">
+                    ${p["name"]}
+                  </div>
+                  `;
+                })
+    
+                appthtml += `
+                <div class="box" style="background-color:#ececff;border-color:#${isnow ? "3477eb" : "ececec"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
+                  <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
+                  <div style="display:flex;justify-content:center;align-items:center;margin:5px">
+                    ${stuhtml}
+                  </div>
+                  
                 </div>
                 `;
-              })
-  
-              appthtml += `
-              <div class="box" style="background-color:#ececff;border-color:#${isnow ? "3477eb" : "ececec"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
-                <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
-                <div style="display:flex;justify-content:center;align-items:center;margin:5px">
-                  ${stuhtml}
-                </div>
-                
-              </div>
-              `;
+              }
+            }else{
+              more = true;
             }
-
             
+
+            appts += 1;
           
           })
           if(appthtml != ""){
             addhtml += `
-          <div class="box" style="border-radius:16px;width:90%;padding:20px;margin-top:16px;margin-bottom:16px;display:inline-block">
+          <div class="box boxshadow" style="border-radius:16px;width:90%;padding:20px;margin-top:16px;margin-bottom:16px;display:inline-block">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
                 <span class="text" style="font-size:36px;font-weight:bold;color:#3477eb;margin-left:20px;display:block;text-align:left">${s}</span>
@@ -408,6 +416,7 @@
               <div style="width:50%">
                 
                 ${appthtml}
+                ${more ? `<span class="text" style="font-size:16px;color:#3477eb;text-align:left;margin-top:20px"><i>...</i></span>` : ""}
               </div>
             </div>
           </div>
@@ -416,6 +425,7 @@
           
         });
         document.getElementById("staff").innerHTML = addhtml;
+        setTimeout(init, 60000);
       })
       
     }
@@ -447,7 +457,13 @@
     }
     var m = d.getMinutes();
     var s = d.getSeconds();
+
+    var month = months[d.getMonth()];
+    var day = d.getDate();
+    var year = d.getFullYear();
+
     document.getElementById("time").innerHTML = h + ":" + (m.toString().padStart(2, "0")) + ":" + (s.toString().padStart(2, "0")) + " " + addon;
+    document.getElementById("date").innerHTML = month + " " + day + ", " + year;
   }, 50);
 
   
