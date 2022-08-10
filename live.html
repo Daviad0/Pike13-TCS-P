@@ -518,7 +518,7 @@
     document.getElementById("time").innerHTML = h + ":" + (m.toString().padStart(2, "0")) + ":" + (s.toString().padStart(2, "0")) + " " + addon;
     document.getElementById("date").innerHTML = month + " " + day + ", " + year;
 
-    if(m >= 58 && m < 2){
+    if(m >= 58 || m < 2){
       document.getElementById("body").classList = "warningpulse";
     }else{
       document.getElementById("body").classList = "";
