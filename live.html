@@ -9,40 +9,9 @@
     
 
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
-      <div style="display: flex;justify-content:center;align-items:center">
+      <div id="staff">
         
-        <div class="box" style="border-radius:16px;width:80%;padding:20px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <span class="text" style="font-size:36px;font-weight:bold;color:#3477eb;margin-left:20px;display:block;text-align:left">David Reeves</span>
-              <span class="text" style="font-size:20px;color:#3477eb;margin-left:20px;display:block;text-align:left;margin-top:5px"><i>Only 5:30 to go!</i></span>
-            </div>
-            
-            <div style="width:50%">
-              <div class="box" style="background-color:#ececff;border-color:#ececec;border-radius:12px;margin:5px">
-                <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px">Now:</span>
-                <div style="display:flex;justify-content:center;align-items:center;margin:5px">
-                  <div class="box" style="border-radius: 12px;width:30%;margin:5px">
-                    Miyu N.
-                  </div>
-                </div>
-                
-              </div>
-              <div class="box" style="background-color:#ececff;border-color:#ececec;border-radius:12px;margin:5px">
-                <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px">Starting @ 5:30:</span>
-                <div style="display:flex;justify-content:center;align-items:center;margin:5px">
-                  <div class="box" style="border-radius: 12px;width:30%;margin:5px">
-                   Ryan G.
-                  </div>
-                  <div class="box" style="border-radius: 12px;width:30%;margin:5px">
-                    Kyle G.
-                   </div>
-                </div>
-                
-              </div>
-            </div>
-          </div>
-        </div>
+        
         
       
       </div>
@@ -236,6 +205,7 @@
   var token = undefined;
   var currentPhase = 0;
   var phasedata = "";
+  var appointments = [];
 
   function hidePhase(){
     document.querySelector(".phase[data-num='" + currentPhase + "']").style.opacity = "0";
@@ -348,6 +318,7 @@
 
       apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences/173672903/visits", {}, "GET", function(data){
                    console.log(data);
+                   init();
                  })
       
     },
@@ -368,6 +339,89 @@
     })
   }
 
+    function init(){
+      var now = new Date();
+      now.setHours(now.getHours()-1);
+      var then = new Date();
+      then.setHours(then.getHours()+8);
+
+      apiReq('https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from=' + now.toString() + "&to=" + then.toString(), {}, "GET", function(data){
+        appointments = data["event_occurrences"];
+        console.log(data);
+        let staff = [];
+        appointments.forEach(eO => {
+          eO["staff_members"].forEach(sm => {
+            if(!staff.includes(sm["name"])){
+              staff.push(sm["name"]);
+            }
+          });
+        });
+
+        var anchorTime = new Date();
+        anchorTime.setHours(anchorTime.getHours());
+        var addhtml = "";
+        staff.forEach(s => {
+
+          let specAppts = appointments.filter(eO => eO["staff_members"].find(sm => sm["name"] == s) != undefined).sort((a,b) => {
+            return new Date(a["start_at"]) - new Date(b["start_at"]);
+          });
+          let appthtml = "";
+          specAppts.forEach(a => {
+            var time = new Date(a["start_at"]);
+            var amorpm = time.getHours() >= 12 ? "PM" : "AM";
+            var timestamp = (time.getHours() > 12 ? time.getHours()-12 : time.getHours()) + ":" + time.getMinutes().toString().padStart(2, "0");
+            console.log(timestamp + " " + (time < anchorTime) + " " + Math.abs(time - anchorTime));
+            var isnow = (time < anchorTime && Math.abs(time - anchorTime) < 3600000);
+            let stuhtml = "";
+            if(a['people'].length <= 2){
+              a["people"].forEach(p => {
+                stuhtml += `
+                <div class="box" style="border-radius: 12px;width:30%;margin:5px">
+                  ${p["name"]}
+                </div>
+                `;
+              })
+  
+              appthtml += `
+              <div class="box" style="background-color:#ececff;border-color:#${isnow ? "3477eb" : "ececec"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
+                <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
+                <div style="display:flex;justify-content:center;align-items:center;margin:5px">
+                  ${stuhtml}
+                </div>
+                
+              </div>
+              `;
+            }
+
+            
+          
+          })
+          if(appthtml != ""){
+            addhtml += `
+          <div class="box" style="border-radius:16px;width:90%;padding:20px;margin:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <span class="text" style="font-size:36px;font-weight:bold;color:#3477eb;margin-left:20px;display:block;text-align:left">${s}</span>
+                <span class="text" style="font-size:20px;color:#3477eb;margin-left:20px;display:block;text-align:left;margin-top:5px;display:none"><i>Only 5:30 to go!</i></span>
+              </div>
+              
+              <div style="width:50%">
+                
+                ${appthtml}
+              </div>
+            </div>
+          </div>
+          `; 
+          }
+          
+        });
+        document.getElementById("staff").innerHTML = addhtml;
+      })
+      
+    }
+
+    
+    
                  
 
 
