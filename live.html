@@ -17,6 +17,12 @@
       </div>
       
     </div>
+    <div class="phase" data-num="8" style="display:none;opacity:0" data-bg="">
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Select Absent Student:</span>
+      <div id="possibleAbsentStudents">
+
+      </div>
+    </div>
     
     
   </div>
@@ -91,10 +97,36 @@
     </div>
     
   </div>
+  <div class="sidecontainer" id="buttons">
+    
+    
+  </div>
   
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script>
+
+
+  var buttonPhases = {
+    "0":[
+      {
+        "text": "Mark Absent",
+        "key": "0"
+      },
+      {
+        "text": "Settings",
+        "key": "9"
+      }
+    ],
+    "8":[
+      {
+        "text": "Main List",
+        "key": "0"
+      }
+    ]
+  }
+
+
   var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var ws = new WebSocket("ws://localhost:1338");
   ws.onopen = function (event) {
@@ -231,7 +263,28 @@
     "Who Are You?"
   ]
 
+
+  
+
+
   function handlePhaseLogic(){
+
+
+    document.getElementById("buttons").innerHTML = "";
+    var bHtml = "";
+    var buttons = buttonPhases[currentPhase.toString()];
+    buttons.forEach(b => {
+      bHtml += `<div style="margin-bottom:10px"><div class="box boxshadow" style="border-radius:8px 0px 0px 8px;padding:8px 12px;display:inline-flex;justify-content:left;align-items:center">
+        <div style="width:28px;height:28px;border-radius:8px;background-color:#3477eb;display:inline-flex;justify-content:center;align-items:center">
+          <span style="font-size:14px;font-weight:bold" class="text">${b.key}</span>
+        </div>
+        <span style="font-size:12px;margin:10px;font-weight:bold;color:#3477eb" class="text">${b.text}</span>
+      </div></div>
+      `;
+    })
+    document.getElementById("buttons").innerHTML = bHtml;
+
+
     switch(currentPhase){
       case 1:
         if(phasedata == "student"){
@@ -377,10 +430,10 @@
             var isnow = (time < anchorTime && Math.abs(time - anchorTime) < 3600000);
             let stuhtml = "";
             if(appts < 3){
-              if(a['people'].length <= 2){
+              if(a['people'].length <= 20){ //CHANGE
                 a["people"].forEach(p => {
                   stuhtml += `
-                  <div class="box boxshadow" style="border-radius: 12px;width:30%;margin:5px">
+                  <div class="box boxshadow" style="border-radius: 12px;width:40%;margin:5px">
                     ${p["name"]}
                   </div>
                   `;
@@ -389,7 +442,7 @@
                 appthtml += `
                 <div class="box" style="background-color:#ececff;border-color:#${isnow ? "3477eb" : "ececff"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
                   <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
-                  <div style="display:flex;justify-content:center;align-items:center;margin:5px">
+                  <div style="display:flex;justify-content:center;align-items:center;margin:5px;flex-wrap:wrap">
                     ${stuhtml}
                   </div>
                   
@@ -464,6 +517,13 @@
 
     document.getElementById("time").innerHTML = h + ":" + (m.toString().padStart(2, "0")) + ":" + (s.toString().padStart(2, "0")) + " " + addon;
     document.getElementById("date").innerHTML = month + " " + day + ", " + year;
+
+    if(m >= 58 && m < 2){
+      document.getElementById("body").classList = "warningpulse";
+    }else{
+      document.getElementById("body").classList = "";
+    }
+
   }, 50);
 
   

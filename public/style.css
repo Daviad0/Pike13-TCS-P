@@ -7,6 +7,23 @@ body {
   text-align:center;
   transition: 0.3s ease-in-out all;
 }
+
+.warningpulse{
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse{
+  0%{
+    background-color: #3477eb;
+  }
+  50%{
+    background-color: #4c8dfc;
+  }
+  100%{
+    background-color: #3477eb;
+  }
+}
+
 .phase{
   transition: 0.3s all ease-in-out;
 }
@@ -20,6 +37,14 @@ body {
   top: 140px;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.sidecontainer{
+  position: fixed;
+  width:100%;
+  bottom:10%;
+  right: 0;
+  text-align:right;
 }
 .timecontainer{
   position:absolute;
