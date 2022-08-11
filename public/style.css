@@ -2,7 +2,7 @@
   cursor: none;
 }
 body {
-  background-color: #3477eb;
+  background-color: #349934;
   font-family: 'Inter', sans-serif;
   text-align:center;
   transition: 0.3s ease-in-out all;
@@ -14,13 +14,13 @@ body {
 
 @keyframes pulse{
   0%{
-    background-color: #3477eb;
+    background-color: #349934;
   }
   50%{
-    background-color: #4c8dfc;
+    background-color: #42bd42;
   }
   100%{
-    background-color: #3477eb;
+    background-color: #349934;
   }
 }
 
@@ -60,7 +60,7 @@ body {
 .box{
   background-color:white;
   border: 2px solid white;
-  color: #3477eb;
+  color: #349934;
   padding:10px;
 }
 .boxshadow{

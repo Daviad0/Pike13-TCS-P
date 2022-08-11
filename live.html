@@ -239,6 +239,7 @@
   var currentPhase = 0;
   var phasedata = "";
   var appointments = [];
+  var possibleAbsent = [];
 
   function hidePhase(){
     document.querySelector(".phase[data-num='" + currentPhase + "']").style.opacity = "0";
@@ -266,6 +267,23 @@
 
   
 
+  document.addEventListener('keydown', function(e){
+    switch(currentPhase){
+      case 0:
+        if(e.key == "0"){
+          hidePhase();
+          showPhase(8);
+        }
+        break;
+      case 8:
+        if(e.key == "0"){
+          hidePhase();
+          showPhase(0);
+        }
+        break;
+    }
+  })
+
 
   function handlePhaseLogic(){
 
@@ -275,10 +293,10 @@
     var buttons = buttonPhases[currentPhase.toString()];
     buttons.forEach(b => {
       bHtml += `<div style="margin-bottom:10px"><div class="box boxshadow" style="border-radius:8px 0px 0px 8px;padding:8px 12px;display:inline-flex;justify-content:left;align-items:center">
-        <div style="width:28px;height:28px;border-radius:8px;background-color:#3477eb;display:inline-flex;justify-content:center;align-items:center">
+        <div style="width:28px;height:28px;border-radius:8px;background-color:#349934;display:inline-flex;justify-content:center;align-items:center">
           <span style="font-size:14px;font-weight:bold" class="text">${b.key}</span>
         </div>
-        <span style="font-size:12px;margin:10px;font-weight:bold;color:#3477eb" class="text">${b.text}</span>
+        <span style="font-size:12px;margin:10px;font-weight:bold;color:#349934" class="text">${b.text}</span>
       </div></div>
       `;
     })
@@ -353,6 +371,30 @@
           showPhase(0);
          },3000);
         break;
+      case 8:
+        document.getElementById("possibleAbsentStudents").innerHTML = "";
+        var fHtml = "";
+        var n = 1;
+        possibleAbsent.forEach(s => {
+          s['people'].forEach(p => {
+            fHtml += `
+            <div style="width:100%">
+
+              <div class="box boxshadow absentstu" style="border-radius: 12px;width:40%;margin:5px;padding:20px;font-size:24px;display:inline-flex;align-items:center;justify-content:center" data-key="${n}">
+                <div style="width:40px;height:40px;border-radius:8px;background-color:#349934;display:inline-flex;justify-content:center;align-items:center">
+                  <span style="font-size:20px;font-weight:bold" class="text">${n}</span>
+                </div>
+                <span style="width:80%">${p["name"]}</span>
+              </div>
+            </div>
+          
+          `;
+          n+=1;
+          })
+          
+        });
+        document.getElementById("possibleAbsentStudents").innerHTML = fHtml;
+        break;
     }
     setTimeout(function(){
       document.querySelector(".phase[data-num='" + currentPhase + "']").style.opacity = "1";
@@ -395,12 +437,13 @@
 
     function init(){
       var now = new Date();
-      now.setHours(now.getHours()-1);
+      now.setMinutes(now.getMinutes()-59);
       var then = new Date();
       then.setHours(then.getHours()+8);
 
       apiReq('https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from=' + now.toString() + "&to=" + then.toString(), {}, "GET", function(data){
         appointments = data["event_occurrences"];
+        possibleAbsent = [];
         console.log(data);
         let staff = [];
         appointments.forEach(eO => {
@@ -428,6 +471,9 @@
             var timestamp = (time.getHours() > 12 ? time.getHours()-12 : time.getHours()) + ":" + time.getMinutes().toString().padStart(2, "0");
             console.log(timestamp + " " + (time < anchorTime) + " " + Math.abs(time - anchorTime));
             var isnow = (time < anchorTime && Math.abs(time - anchorTime) < 3600000);
+            if(isnow){
+              possibleAbsent.push(a);
+            }
             let stuhtml = "";
             if(appts < 3){
               if(a['people'].length <= 20){ //CHANGE
@@ -440,8 +486,8 @@
                 })
     
                 appthtml += `
-                <div class="box" style="background-color:#ececff;border-color:#${isnow ? "3477eb" : "ececff"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
-                  <span class="text" style="font-size:20px;font-weight:bold;color:#3477eb;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
+                <div class="box" style="background-color:${isnow ? "aef5ae" : "cbf7cb"};border-color:#${isnow ? "349934" : "cbf7cb"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
+                  <span class="text" style="font-size:20px;font-weight:bold;color:#349934;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
                   <div style="display:flex;justify-content:center;align-items:center;margin:5px;flex-wrap:wrap">
                     ${stuhtml}
                   </div>
@@ -462,14 +508,14 @@
           <div class="box boxshadow" style="border-radius:16px;width:90%;padding:20px;margin-top:10px;margin-bottom:10px;display:inline-block">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
-                <span class="text" style="font-size:36px;font-weight:bold;color:#3477eb;margin-left:20px;display:block;text-align:left">${s}</span>
-                <span class="text" style="font-size:20px;color:#3477eb;margin-left:20px;display:block;text-align:left;margin-top:5px;display:none"><i>Only 5:30 to go!</i></span>
+                <span class="text" style="font-size:36px;font-weight:bold;color:#349934;margin-left:20px;display:block;text-align:left">${s}</span>
+                <span class="text" style="font-size:20px;color:#349934;margin-left:20px;display:block;text-align:left;margin-top:5px;display:none"><i>Only 5:30 to go!</i></span>
               </div>
               
               <div style="width:50%">
                 
                 ${appthtml}
-                ${more ? `<span class="text" style="font-size:16px;color:#3477eb;text-align:left;margin-top:20px"><i>...</i></span>` : ""}
+                ${more ? `<span class="text" style="font-size:16px;color:#349934;text-align:left;margin-top:20px"><i>...</i></span>` : ""}
               </div>
             </div>
           </div>
