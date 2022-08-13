@@ -450,6 +450,7 @@
 
       apiReq('https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from=' + now.toString() + "&to=" + then.toString(), {}, "GET", function(data){
         appointments = data["event_occurrences"];
+
         possibleAbsent = [];
         console.log(data);
         let staff = [];
@@ -587,10 +588,10 @@
       if(dirLength <= 0){
         if(dir == 1){
           dir = -1;
-          dirLength = 700;
+          dirLength = 1200;
         }else{
           dir = 1;
-          dirLength = 700;
+          dirLength = 1200;
         }
       }
       
