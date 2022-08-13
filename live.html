@@ -9,7 +9,7 @@
     
 
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
-      <div id="staff" style="max-height: 60vh;overflow-y:hidden">
+      <div id="staff">
         
         
         
@@ -465,6 +465,7 @@
         anchorTime.setHours(anchorTime.getHours());
         var addhtml = "";
         var totalAppts = 0;
+        var apptsNow = 0;
         staff.forEach(s => {
 
           let specAppts = appointments.filter(eO => eO["staff_members"].find(sm => sm["name"] == s) != undefined).sort((a,b) => {
@@ -481,6 +482,7 @@
             var isnow = (time < anchorTime && Math.abs(time - anchorTime) < 3600000);
             if(isnow){
               possibleAbsent.push(a);
+              apptsNow += 1;
             }
             let stuhtml = "";
             if(appts < 3){
@@ -558,11 +560,15 @@
             </div>
             `;
           }
+          
 
           document.getElementById("body").style.backgroundColor = "#002b00"
           
         }else{
           document.getElementById("body").style.backgroundColor = ""
+          if(apptsNow == 0){
+            document.getElementById("body").style.backgroundColor = "#002b00"
+          }
         }
 
         document.getElementById("staff").innerHTML = addhtml;
