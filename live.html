@@ -9,7 +9,7 @@
     
 
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
-      <div id="staff">
+      <div id="staff" style="max-height:95vh;overflow-y:hidden">
         
         
         
@@ -578,12 +578,25 @@
 
     
     
-                 
-    /*function pageScroll() {
-      document.getElementById("staff").scrollBy(0,1);
+  var dir = 0;
+  var dirLength = 200;
+  function pageScroll() {
+      document.getElementById("staff").scrollBy(0,dir);
+      dirLength -= 1;
+
+      if(dirLength <= 0){
+        if(dir == 1){
+          dir = -1;
+          dirLength = 500;
+        }else{
+          dir = 1;
+          dirLength = 500;
+        }
+      }
+      
       scrolldelay = setTimeout(pageScroll,50);
   }
-  pageScroll();*/
+  pageScroll();
 
 
   Array.from(document.getElementsByClassName("showphase")).forEach(e=>{
