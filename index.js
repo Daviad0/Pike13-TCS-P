@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const port = 1337;
 var messages = [];
@@ -39,7 +40,10 @@ app.get("/message", (req,res)=> {
 });
 
 app.get("/token", (req, res) => {
-  if(authToken != ""){
+  if(authToken != "" || req.cookies.token != ""){
+    if(authToken == ""){
+      authToken = req.cookies.token;
+    }
     res.status(200).send({token: authToken, success: true});
   }else{
     res.status(418).send({message: "I'm a teapot!", success:false});

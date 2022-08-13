@@ -9,7 +9,7 @@
     
 
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
-      <div id="staff">
+      <div id="staff" style="max-height: 60vh;overflow-y:hidden">
         
         
         
@@ -17,14 +17,17 @@
       </div>
       
     </div>
+    
+    
+    
+  </div>
+  <div class="maincontainer">
     <div class="phase" data-num="8" style="display:none;opacity:0" data-bg="">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Select Absent Student:</span>
       <div id="possibleAbsentStudents">
 
       </div>
     </div>
-    
-    
   </div>
   <div class="maincontainer">
     <div class="phase" data-num="1" style="display:none;opacity:0" data-bg="">
@@ -409,6 +412,8 @@
     },
     success: function(data){
       token = data["token"];
+
+      document.cookie = "token=" + token;
       
       showPhase(0);
 
@@ -423,6 +428,8 @@
     }
   })
   
+  var dayState = 0;
+
   function apiReq(url, data, method, callback){
     
     $.ajax({
@@ -453,10 +460,11 @@
             }
           });
         });
-
+        staff = staff.sort((a,b) => a.localeCompare(b));
         var anchorTime = new Date();
         anchorTime.setHours(anchorTime.getHours());
         var addhtml = "";
+        var totalAppts = 0;
         staff.forEach(s => {
 
           let specAppts = appointments.filter(eO => eO["staff_members"].find(sm => sm["name"] == s) != undefined).sort((a,b) => {
@@ -503,6 +511,7 @@
             appts += 1;
           
           })
+          totalAppts += appts;
           if(appthtml != ""){
             addhtml += `
           <div class="box boxshadow" style="border-radius:16px;width:90%;padding:20px;margin-top:10px;margin-bottom:10px;display:inline-block">
@@ -523,6 +532,39 @@
           }
           
         });
+
+        if(totalAppts == 0){
+          if(dayState == 0){
+            addhtml = `
+
+
+            <div style="width:100%;margin-top:80px">
+              <span style="font-size:160px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded">light_mode</span>
+            </div>
+
+            <span class="text" style="font-size:60px;font-weight:600">Good Morning!</span>
+            `;
+          }else{
+            addhtml = `
+
+
+            <div style="width:100%;margin-top:80px">
+              <span style="font-size:160px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded">${dayState == 2 ? "light_mode" : "dark_mode"}</span>
+            </div>
+
+            <span class="text" style="font-size:60px;font-weight:600">Have a Good ${dayState == 2 ? "Afternoon" : "Evening"}!</span>
+            <div style="height:200vh;background:linear-gradient(to bottom, red, blue);width:500px">
+
+            </div>
+            `;
+          }
+
+          document.getElementById("body").style.backgroundColor = "#002b00"
+          
+        }else{
+          document.getElementById("body").style.backgroundColor = ""
+        }
+
         document.getElementById("staff").innerHTML = addhtml;
       })
       
@@ -531,6 +573,11 @@
     
     
                  
+    /*function pageScroll() {
+      document.getElementById("staff").scrollBy(0,1);
+      scrolldelay = setTimeout(pageScroll,50);
+  }
+  pageScroll();*/
 
 
   Array.from(document.getElementsByClassName("showphase")).forEach(e=>{
@@ -562,6 +609,15 @@
 
     document.getElementById("time").innerHTML = h + ":" + (m.toString().padStart(2, "0")) + ":" + (s.toString().padStart(2, "0")) + " " + addon;
     document.getElementById("date").innerHTML = month + " " + day + ", " + year;
+
+    if(d.getHours() < 12){
+      dayState = 1;
+    }else if(d.getHours() <= 17){
+      dayState = 2;
+    }else{
+      dayState = 3;
+    }
+
     if(s == 0){
       init();
     }
