@@ -456,6 +456,9 @@
       success: function(data){
         callback(data);
       },
+      error: function(data){
+        window.location = "https://pike13.com/oauth/authorize?client_id=jwTKu0Aqc7NJIsaLR7EevorTy6SAXdawhkHLn5Z0&response_type=code&redirect_uri=http://localhost:1337/auth";
+      }
     })
   }
 
