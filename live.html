@@ -21,6 +21,13 @@
     
     
   </div>
+  <div class="bottomcontainer">
+    
+    <span style="font-size:16px;font-weight:600;display:block;margin:20px" class="text" id="currentQuote">"This is a quote, a very inspirational quote" - Quote Maker</span>
+    
+    
+    
+  </div>
   <div class="maincontainer">
     <div class="phase" data-num="8" style="display:none;opacity:0" data-bg="">
       <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Select Absent Student:</span>
@@ -110,6 +117,16 @@
 <script>
 
 
+  var quotes = [
+    {"text":"A good programmer is someone who always looks both ways before crossing a one-way street.", "author":"Doug Linder"},
+    {"text":"Everybody should learn to program a computer, because it teaches you how to think.", "author":"Steve Jobs"},
+    {"text":"Computers are good at following instructions, but not at reading your mind.", "author":"Donald Knuth"},
+    {"text":"Sometimes it pays to stay in bed on Monday, rather than spending the rest of the week debugging Monday's code.", "author":"Dan Salomon"},
+    {"text":"Computer science empowers students to create the world of tomorrow.", "author":"Satya Nadella"},
+    {"text":"Students who study computer science unlock a world of opportunities for themselves.", "author":"Dr. John Deasy"},
+    {"text":"Spending all my money again, are you?", "author":"Rajan Patel"},
+    {"text":"Uwaaaa", "author":"Kirby"}
+  ]
   var buttonPhases = {
     "0":[
       {
@@ -610,7 +627,7 @@
       showPhase(parseInt(evt.srcElement.dataset.phase));
     });
   })
-
+  var quoteSelected = false;
   setInterval(function(){
     var d = new Date();
     var addon = "AM";
@@ -641,6 +658,15 @@
 
     if(s == 0){
       init();
+      
+      if(!quoteSelected){
+        quoteSelected = true;
+        var newQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById("currentQuote").innerHTML = `"${newQuote['text']}" <span style="font-weight:500">- ${newQuote['author']}</span>`;
+      }
+      
+    }else{
+      quoteSelected = false;
     }
     if(m >= 58 || m < 2){
       document.getElementById("body").classList = "warningpulse";
@@ -649,6 +675,7 @@
       }
     }else{
       document.getElementById("body").classList = "";
+      
     }
 
   }, 50);
