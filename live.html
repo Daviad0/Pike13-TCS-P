@@ -659,10 +659,11 @@
     }
 
     if(s == 0){
-      init();
+      
       
       if(!quoteSelected){
         quoteSelected = true;
+        init();
         var newQuote = quotes[Math.floor(Math.random() * quotes.length)];
         document.getElementById("currentQuote").innerHTML = `"${newQuote['text']}" <span style="font-weight:500">- ${newQuote['author']}</span>`;
       }
