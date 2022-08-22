@@ -503,7 +503,7 @@
             var timestamp = (time.getHours() > 12 ? time.getHours()-12 : time.getHours()) + ":" + time.getMinutes().toString().padStart(2, "0");
             var endTimestamp = (endTime.getHours() > 12 ? endTime.getHours()-12 : endTime.getHours()) + ":" + endTime.getMinutes().toString().padStart(2, "0");
             console.log(timestamp + " " + (time < anchorTime) + " " + Math.abs(time - anchorTime));
-            var isnow = (time < anchorTime && time > endTime);
+            var isnow = (time < anchorTime && anchorTime < endTime);
             if(isnow){
               possibleAbsent.push(a);
               apptsNow += 1;
