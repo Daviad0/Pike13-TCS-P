@@ -33,7 +33,7 @@ body {
 }
 .maincontainer{
   position: absolute;
-  width:80%;
+  width:90%;
   top: 140px;
   left: 50%;
   transform: translateX(-50%);
