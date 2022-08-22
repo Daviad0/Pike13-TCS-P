@@ -100,7 +100,7 @@
     </div>
     
   </div>
-  <div class="sidecontainer" id="buttons">
+  <div class="sidecontainer" id="buttons" style="display:none">
     
     
   </div>
@@ -254,7 +254,7 @@
   function showPhase(num){
     currentPhase = num;
     var color = document.querySelector(".phase[data-num='" + num + "']").dataset.bg;
-    document.getElementById("body").style.backgroundColor = color;
+    //document.getElementById("body").style.backgroundColor = color;
     document.querySelector(".phase[data-num='" + num + "']").style.display = "";
     handlePhaseLogic();
   }
@@ -477,28 +477,31 @@
           var more = false;
           specAppts.forEach(a => {
             var time = new Date(a["start_at"]);
+            var endTime = new Date(a["end_at"]);
             var amorpm = time.getHours() >= 12 ? "PM" : "AM";
+            var endAmorpm = endTime.getHours() >= 12 ? "PM" : "AM";
             var timestamp = (time.getHours() > 12 ? time.getHours()-12 : time.getHours()) + ":" + time.getMinutes().toString().padStart(2, "0");
+            var endTimestamp = (endTime.getHours() > 12 ? endTime.getHours()-12 : endTime.getHours()) + ":" + endTime.getMinutes().toString().padStart(2, "0");
             console.log(timestamp + " " + (time < anchorTime) + " " + Math.abs(time - anchorTime));
-            var isnow = (time < anchorTime && Math.abs(time - anchorTime) < 3600000);
+            var isnow = (time < anchorTime && time > endTime);
             if(isnow){
               possibleAbsent.push(a);
               apptsNow += 1;
             }
             let stuhtml = "";
-            if(appts < 3){
+            if(appts < 6){
               if(a['people'].length <= 20){ //CHANGE
                 a["people"].forEach(p => {
                   stuhtml += `
-                  <div class="box boxshadow" style="border-radius: 12px;width:40%;margin:5px">
-                    ${p["name"]}
+                  <div class="box boxshadow" style="border-radius: 12px;width:40%;margin:5px;font-size:14px">
+                    ${p["name"].split(" ")[0] + " " + p["name"].split(" ")[1].substring(0,1) + "."}
                   </div>
                   `;
                 })
     
                 appthtml += `
-                <div class="box" style="background-color:${isnow ? "aef5ae" : "cbf7cb"};border-color:#${isnow ? "349934" : "cbf7cb"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"}">
-                  <span class="text" style="font-size:20px;font-weight:bold;color:#349934;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + ")"  : timestamp + " " + amorpm}</span>
+                <div class="box" style="background-color:${isnow ? "aef5ae" : "cbf7cb"};border-color:#${isnow ? "349934" : "cbf7cb"};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"};width:45%;margin:5px">
+                  <span class="text" style="font-size:20px;font-weight:bold;color:#349934;margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm + ")"  : timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm}</span>
                   <div style="display:flex;justify-content:center;align-items:center;margin:5px;flex-wrap:wrap">
                     ${stuhtml}
                   </div>
@@ -520,13 +523,14 @@
           <div class="box boxshadow" style="border-radius:16px;width:90%;padding:20px;margin-top:10px;margin-bottom:10px;display:inline-block">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
-                <span class="text" style="font-size:36px;font-weight:bold;color:#349934;margin-left:20px;display:block;text-align:left">${s}</span>
+                <span class="text" style="font-size:36px;font-weight:bold;color:#349934;margin-left:20px;display:block;text-align:left">${s.split(" ")[0] + " " + s.split(" ")[1].substring(0,1) + "."}</span>
                 <span class="text" style="font-size:20px;color:#349934;margin-left:20px;display:block;text-align:left;margin-top:5px;display:none"><i>Only 5:30 to go!</i></span>
               </div>
               
-              <div style="width:50%">
-                
-                ${appthtml}
+              <div style="width:70%">
+                <div style='width:100%;display:inline-flex;justify-content:center;flex-wrap:wrap'>
+                  ${appthtml}
+                </div>
                 ${more ? `<span class="text" style="font-size:16px;color:#349934;text-align:left;margin-top:20px"><i>...</i></span>` : ""}
               </div>
             </div>
@@ -556,9 +560,6 @@
             </div>
 
             <span class="text" style="font-size:60px;font-weight:600">Have a Good ${dayState == 2 ? "Afternoon" : "Evening"}!</span>
-            <div style="height:200vh;background:linear-gradient(to bottom, red, blue);width:500px">
-
-            </div>
             `;
           }
           
