@@ -2,7 +2,6 @@
   cursor: none;
 }
 body {
-  background-color: #349934;
   font-family: 'Inter', sans-serif;
   text-align:center;
   transition: 0.3s ease-in-out all;
@@ -67,7 +66,7 @@ body {
 .box{
   background-color:white;
   border: 2px solid white;
-  color: #349934;
+  color: #0076d7;
   padding:10px;
 }
 .boxshadow{
