@@ -23,6 +23,22 @@ body {
   }
 }
 
+@keyframes spin{
+  0%{
+    transform: rotate(10deg);
+  }
+  50%{
+    transform: rotate(-10deg);
+  }
+  100%{
+    transform: rotate(10deg);
+  }
+}
+
+.spinanim{
+  animation: spin 2s infinite ease-in-out;
+}
+
 .phase{
   transition: 0.3s all ease-in-out;
 }

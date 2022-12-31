@@ -126,6 +126,14 @@
   var colorLight = "#75c1ff";
   var colorVeryLight = "#a8d8ff";
 
+  var virtualMain = "#003dd7";
+  var virtualLight = "#4278ff";
+  var virtualVeryLight = "#8fafff";
+
+  var internalMain = "#161616";
+  var internalLight = "#4d4d4d";
+  var internalVeryLight = "#a3a3a3";
+
   var quotes = [
     {"text":"A good programmer is someone who always looks both ways before crossing a one-way street.", "author":"Doug Linder"},
     {"text":"Everybody should learn to program a computer, because it teaches you how to think.", "author":"Steve Jobs"},
@@ -517,6 +525,24 @@
               possibleAbsent.push(a);
               apptsNow += 1;
             }
+
+            var eventName = a["name"];
+            var icon = "inperson.png"
+            var useColorMain = colorMain;
+            var useColorLight = colorLight;
+            var useColorVeryLight = colorVeryLight;
+            if(eventName.includes("Virtual")){
+              icon = "virtual.png";
+              useColorMain = virtualMain;
+              useColorLight = virtualLight;
+              useColorVeryLight = virtualVeryLight;
+            }else if(eventName.includes("Internal")){
+              icon = "internal.png";
+              useColorMain = internalMain;
+              useColorLight = internalLight;
+              useColorVeryLight = internalVeryLight;
+            }
+
             let stuhtml = "";
             if(appts < 6){
               if(a['people'].length <= 20){ //CHANGE
@@ -529,10 +555,17 @@
                 })
     
                 appthtml += `
-                <div class="box" style="background-color:${isnow ? colorLight : colorVeryLight};border-color:${isnow ? colorMain : colorVeryLight};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"};width:42%;margin:5px">
-                  <span class="text" style="font-size:20px;font-weight:bold;color:${colorMain};margin:5px;display:block">${isnow ? "Now (" + timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm + ")"  : timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm}</span>
+                <div class="box" style="background-color:${isnow ? useColorLight : useColorVeryLight};border-color:${isnow ? useColorMain : useColorVeryLight};border-radius:12px;margin:5px;border-width:${isnow ? "4px" : "2px"};width:42%;margin:5px">
+                  <div style="display:flex;justify-content:center;align-items:center">
+                    <div ${isnow ? "class='spinanim'" : ""} style="border-radius:20px;background-color:${isnow ? useColorMain : useColorLight};padding:5px;margin-right:5px">
+                      <img src="${icon}" style="width:20px"/>
+                    </div>
+                    
+                    <span class="text" style="font-size:20px;font-weight:bold;color:${useColorMain};margin:5px">${isnow ? "Now " + " <span style='font-weight:500'>until</span> " + endTimestamp + " " + endAmorpm  : timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm}</span>
+                  </div>
+                  
                   <div style="display:flex;justify-content:center;align-items:center;margin:5px;flex-wrap:wrap">
-                    ${stuhtml}
+                    ${stuhtml == "" ? `<i style="color:${useColorMain};font-size:16px;margin-top:12px">Internal Meeting</i>` : stuhtml}
                   </div>
                   
                 </div>
