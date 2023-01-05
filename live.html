@@ -5,7 +5,7 @@
   <link href="style.css" rel="stylesheet"/>
 </head>
 <body style="transition: 0.4s all ease-in-out;" id="body">
-  <div id="bg" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:#75c1ff">
+  <div id="bg" style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url('bg.PNG');background-size: cover;background-repeat: no-repeat;">
     <div id="bgdim" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0">
 
     </div>
@@ -122,17 +122,17 @@
 <script>
 
 
-  var colorMain = "#0076d7";
-  var colorLight = "#75c1ff";
-  var colorVeryLight = "#a8d8ff";
+  var colorMain = "#3f9a51";
+  var colorLight = "#75db60";
+  var colorVeryLight = "#c3fa9b";
 
-  var virtualMain = "#003dd7";
-  var virtualLight = "#4278ff";
-  var virtualVeryLight = "#8fafff";
+  var virtualMain = "#10541d";
+  var virtualLight = "#218a34";
+  var virtualVeryLight = "#56d16c";
 
   var internalMain = "#161616";
-  var internalLight = "#4d4d4d";
-  var internalVeryLight = "#a3a3a3";
+  var internalLight = "#5c5c5c";
+  var internalVeryLight = "#b3b3b3";
 
   var quotes = [
     {"text":"A good programmer is someone who always looks both ways before crossing a one-way street.", "author":"Doug Linder"},
@@ -481,9 +481,11 @@
 
     function init(){
       var now = new Date();
-      now.setMinutes(now.getMinutes()-59);
+      now.setHours(now.getHours()-7);
       var then = new Date();
       then.setHours(then.getHours()+8);
+
+      var actuallyNow = new Date();
 
       apiReq('https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences?from=' + now.toString() + "&to=" + then.toString(), {}, "GET", function(data){
         appointments = data["event_occurrences"];
@@ -492,11 +494,15 @@
         console.log(data);
         let staff = [];
         appointments.forEach(eO => {
-          eO["staff_members"].forEach(sm => {
-            if(!staff.includes(sm["name"])){
-              staff.push(sm["name"]);
-            }
-          });
+          date = new Date(eO["end_at"])
+          if(date > actuallyNow){
+            eO["staff_members"].forEach(sm => {
+              if(!staff.includes(sm["name"])){
+                staff.push(sm["name"]);
+              }
+            });
+          }
+          
         });
         staff = staff.sort((a,b) => a.localeCompare(b));
         var anchorTime = new Date();
@@ -506,7 +512,7 @@
         var apptsNow = 0;
         staff.forEach(s => {
 
-          let specAppts = appointments.filter(eO => eO["staff_members"].find(sm => sm["name"] == s) != undefined).sort((a,b) => {
+          let specAppts = appointments.filter(eO => eO["staff_members"].find(sm => sm["name"] == s) != undefined && new Date(eO["end_at"]) > actuallyNow).sort((a,b) => {
             return new Date(a["start_at"]) - new Date(b["start_at"]);
           });
           let appthtml = "";
@@ -531,6 +537,7 @@
             var useColorMain = colorMain;
             var useColorLight = colorLight;
             var useColorVeryLight = colorVeryLight;
+            var noStatus = "No Clients...?";
             if(eventName.includes("Virtual")){
               icon = "virtual.png";
               useColorMain = virtualMain;
@@ -538,20 +545,37 @@
               useColorVeryLight = virtualVeryLight;
             }else if(eventName.includes("Internal")){
               icon = "internal.png";
+              noStatus = "Internal Meeting";
               useColorMain = internalMain;
               useColorLight = internalLight;
               useColorVeryLight = internalVeryLight;
+            }else if(eventName.includes("(In-Person)")){
+              // camp
+              icon = "camp.png";
+              noStatus = "In-Person Camp";
             }
+            
 
             let stuhtml = "";
             if(appts < 6){
               if(a['people'].length <= 20){ //CHANGE
                 a["people"].forEach(p => {
-                  stuhtml += `
-                  <div class="box boxshadow" style="border-radius: 12px;width:40%;margin:5px;font-size:14px">
-                    ${p["name"].split(" ")[0] + " " + p["name"].split(" ")[1].substring(0,1) + "."}
-                  </div>
-                  `;
+
+                  if(icon == "camp.png"){
+                    stuhtml += `
+                    <div class="box boxshadow" style="border-radius: 12px;width:30px;margin:5px;font-size:14px;color:${useColorMain};background-color:${useColorMain};border:2px solid ${useColorMain}">
+                      <img ${isnow ? "class='spinanim'" : ""} src="face.png" style="width:20px"/>
+                    </div>
+                    `;
+                  }
+                  else{
+                    stuhtml += `
+                    <div class="box boxshadow" style="border-radius: 12px;width:40%;margin:5px;font-size:14px;color:${useColorMain}">
+                      ${p["name"].includes("Trial") ? "<i>Trial Student</i>" :p["name"].split(" ")[0] + " " + p["name"].split(" ")[1].substring(0,1) + "."}
+                    </div>
+                    `;
+                  }
+                  
                 })
     
                 appthtml += `
@@ -561,11 +585,11 @@
                       <img src="${icon}" style="width:20px"/>
                     </div>
                     
-                    <span class="text" style="font-size:20px;font-weight:bold;color:${useColorMain};margin:5px">${isnow ? "Now " + " <span style='font-weight:500'>until</span> " + endTimestamp + " " + endAmorpm  : timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm}</span>
+                    <span class="text" style="font-size:20px;font-weight:bold;color:${useColorMain};margin:5px">${icon == "camp.png" ? (isnow ? "Code Camp " + " <span style='font-weight:500'>until</span> " + endTimestamp + " " + endAmorpm  : timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm) : (isnow ? "Now " + " <span style='font-weight:500'>until</span> " + endTimestamp + " " + endAmorpm  : timestamp + " " + amorpm + " <span style='font-weight:500'>to</span> " + endTimestamp + " " + endAmorpm)}</span>
                   </div>
                   
                   <div style="display:flex;justify-content:center;align-items:center;margin:5px;flex-wrap:wrap">
-                    ${stuhtml == "" ? `<i style="color:${useColorMain};font-size:16px;margin-top:12px">Internal Meeting</i>` : stuhtml}
+                    ${stuhtml == "" ? `<i style="color:${useColorMain};font-size:16px;margin-top:12px">${noStatus}</i>` : stuhtml}
                   </div>
                   
                 </div>
