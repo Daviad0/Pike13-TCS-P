@@ -6,7 +6,7 @@
 </head>
 <body style="transition: 0.4s all ease-in-out;" id="body">
   <div id="bg" style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url('bg.PNG');background-size: cover;background-repeat: no-repeat;">
-    <div id="bgdim" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0">
+    <div id="bgdim" style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:black;opacity:0.2">
 
     </div>
   </div>
@@ -650,12 +650,12 @@
           }
           
 
-          document.getElementById("bgdim").style.opacity = "0.4";
+          document.getElementById("bgdim").style.opacity = "0.5";
           
         }else{
-          document.getElementById("bgdim").style.opacity = "0";
+          document.getElementById("bgdim").style.opacity = "0.2";
           if(apptsNow == 0){
-            document.getElementById("bgdim").style.opacity = "0.4";
+            document.getElementById("bgdim").style.opacity = "0.5";
           }
         }
 
