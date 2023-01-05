@@ -142,7 +142,8 @@
     {"text":"Computer science empowers students to create the world of tomorrow.", "author":"Satya Nadella"},
     {"text":"Students who study computer science unlock a world of opportunities for themselves.", "author":"Dr. John Deasy"},
     {"text":"Spending all my money again, are you?", "author":"Rajan Patel"},
-    {"text":"Uwaaaa", "author":"Kirby"}
+    {"text":"Uwaaaa", "author":"Kirby"},
+    {"text":"Background courtesy of Natalie Kim", "author" : ""}
   ]
   var buttonPhases = {
     "0":[
@@ -731,7 +732,7 @@
         quoteSelected = true;
         init();
         var newQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        document.getElementById("currentQuote").innerHTML = `"${newQuote['text']}" <span style="font-weight:500">- ${newQuote['author']}</span>`;
+        document.getElementById("currentQuote").innerHTML = `"${newQuote['text']}" ${newQuote["author"] != "" ? `<span style="font-weight:500">- ${newQuote['author']}</span>` : ``}`;
       }
       
     }else{
