@@ -14,7 +14,7 @@
     
 
     <div class="phase" data-num="0" style="display:none;opacity:0" data-bg="">
-      <div id="staff" style="max-height:90vh;overflow-y:hidden">
+      <div id="staff" style="max-height:86vh;overflow-y:hidden">
         
         
         
@@ -28,16 +28,17 @@
   </div>
   <div class="bottomcontainer">
     
-    <span style="font-size:16px;font-weight:600;display:block;margin:15px" class="text" id="currentQuote">"This is a quote, a very inspirational quote" - Quote Maker</span>
+    <span style="font-size:18px;font-weight:600;display:block;margin:15px" class="text" id="currentQuote">"This is a quote, a very inspirational quote" - Quote Maker</span>
+    <span style="font-size:16px;font-weight:500;display:block;margin:15px" class="text"><i>Press 0 to Mark a Student Absent</i></span>
     
     
     
   </div>
   <div class="maincontainer">
     <div class="phase" data-num="8" style="display:none;opacity:0" data-bg="">
-      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Select Absent Student:</span>
-      <div id="possibleAbsentStudents">
-
+      <span style="font-size:40px;font-weight:600;display:block;margin:20px" class="text" id="selectionText">Mark Student as Absent</span>
+      <div style="display:flex;justify-content:center;align-items:center;margin:5px;flex-wrap:wrap;width:100%" id="possibleAbsentStudents">
+        
       </div>
     </div>
   </div>
@@ -50,12 +51,15 @@
   <div class="maincontainer">
     <div class="phase" data-num="2" style="display:none;opacity:0" data-bg="#1fb81a">
       
-      <div style="width:100%;display:block">
-        <span style="font-size:120px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded" id="confirmationIcon">check</span>
+      <div style="padding:20px;border-radius:16px;background-color:rgba(0,0,0,0.5); text-align:center;display:inline-block;margin-top:20px">
+        <div style="width:100%;display:block">
+          <span style="font-size:120px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text material-symbols-rounded" id="confirmationIcon">check</span>
+        </div>
+        <div style="width:100%;display:block">
+          <span style="font-size:40px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text" id="confirmationMessage">You're Good to Go!</span>
+        </div>
       </div>
-      <div style="width:100%;display:block">
-        <span style="font-size:40px;font-weight:600;display:inline-block;margin:20px;width:60%" class="text" id="confirmationMessage">You're Good to Go!</span>
-      </div>
+      
 
       
     </div>
@@ -302,6 +306,9 @@
     "Who Are You?"
   ]
 
+  var peopleHandled = [];
+  var noShows = [];
+  var letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
   
 
@@ -317,7 +324,45 @@
         if(e.key == "0"){
           hidePhase();
           showPhase(0);
+        }else{
+          try{
+              var i = letters.indexOf(e.key.toUpperCase());
+              var person = peopleHandled[i];
+              var personInEvents = appointments.filter(a => a["people"].filter(p => p["id"] == person["id"]).length > 0)[0];
+  
+              if(noShows.includes(person["name"])){
+                throw new Error("Already marked as absent!");
+              }
+
+              apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/event_occurrences/" + personInEvents.id + "/visits", {}, "GET", function(data){
+                  var studentVisit = data.visits.find(v => v.person.id == person.id);
+                  hidePhase();
+                   apiReq("https://tcs-plymouth.pike13.com/api/v2/desk/visits/"+studentVisit.id,{visit: {state_event: "noshow"}}, "PUT", function(data){
+                  
+                    
+                    noShows.push(person.name);
+                    document.getElementById("confirmationIcon").innerHTML = "check";
+                    document.getElementById("confirmationMessage").innerHTML = person.name + " Marked as Absent!";
+                     showPhase(2);
+                     setTimeout(function(){
+                      hidePhase();
+                      showPhase(0);
+                     },3000);
+                })
+                 })
+
+              
+            
+          }catch(e){
+            console.log(e);
+            hidePhase();
+            showPhase(0);
+          }
         }
+        
+        break;
+      default:
+        
         break;
     }
   })
@@ -325,20 +370,24 @@
 
   function handlePhaseLogic(){
 
+    try{
+      document.getElementById("buttons").innerHTML = "";
+          var bHtml = "";
+          var buttons = buttonPhases[currentPhase.toString()];
+          buttons.forEach(b => {
+            bHtml += `<div style="margin-bottom:10px"><div class="box boxshadow" style="border-radius:8px 0px 0px 8px;padding:8px 12px;display:inline-flex;justify-content:left;align-items:center">
+              <div style="width:28px;height:28px;border-radius:8px;background-color:#0076d7;display:inline-flex;justify-content:center;align-items:center">
+                <span style="font-size:14px;font-weight:bold" class="text">${b.key}</span>
+              </div>
+              <span style="font-size:12px;margin:10px;font-weight:bold;color:#0076d7" class="text">${b.text}</span>
+            </div></div>
+            `;
+          })
+          document.getElementById("buttons").innerHTML = bHtml;
+    }catch(e){
 
-    document.getElementById("buttons").innerHTML = "";
-    var bHtml = "";
-    var buttons = buttonPhases[currentPhase.toString()];
-    buttons.forEach(b => {
-      bHtml += `<div style="margin-bottom:10px"><div class="box boxshadow" style="border-radius:8px 0px 0px 8px;padding:8px 12px;display:inline-flex;justify-content:left;align-items:center">
-        <div style="width:28px;height:28px;border-radius:8px;background-color:#0076d7;display:inline-flex;justify-content:center;align-items:center">
-          <span style="font-size:14px;font-weight:bold" class="text">${b.key}</span>
-        </div>
-        <span style="font-size:12px;margin:10px;font-weight:bold;color:#0076d7" class="text">${b.text}</span>
-      </div></div>
-      `;
-    })
-    document.getElementById("buttons").innerHTML = bHtml;
+    }
+    
 
 
     switch(currentPhase){
@@ -413,20 +462,25 @@
         document.getElementById("possibleAbsentStudents").innerHTML = "";
         var fHtml = "";
         var n = 1;
+        peopleHandled = [];
+        
+        
         possibleAbsent.forEach(s => {
           s['people'].forEach(p => {
+            if(peopleHandled.find(q => q["name"] == p["name"]) != undefined || p["name"] == "Trial Attendee"){
+              return;
+            }
             fHtml += `
-            <div style="width:100%">
 
-              <div class="box boxshadow absentstu" style="border-radius: 12px;width:40%;margin:5px;padding:20px;font-size:24px;display:inline-flex;align-items:center;justify-content:center" data-key="${n}">
+              <div class="box boxshadow absentstu" style="border-radius: 12px;width:30%;margin:5px;padding:20px;font-size:24px;display:inline-flex;align-items:center;justify-content:center" data-key="${n}">
                 <div style="width:40px;height:40px;border-radius:8px;background-color:${colorMain};display:inline-flex;justify-content:center;align-items:center">
-                  <span style="font-size:20px;font-weight:bold" class="text">${n}</span>
+                  <span style="font-size:20px;font-weight:bold;color:white" class="text">${letters[n-1]}</span>
                 </div>
-                <span style="width:80%">${p["name"]}</span>
+                <span style="width:80%;color:${colorMain}">${p["name"]}</span>
               </div>
-            </div>
           
           `;
+          peopleHandled.push(p);
           n+=1;
           })
           
@@ -562,17 +616,20 @@
               if(a['people'].length <= 20){ //CHANGE
                 a["people"].forEach(p => {
 
+                  var notHere = noShows.filter(n => n == p["name"]).length > 0;
+
                   if(icon == "camp.png"){
                     stuhtml += `
                     <div class="box boxshadow" style="border-radius: 12px;width:30px;margin:5px;font-size:14px;color:${useColorMain};background-color:${useColorMain};border:2px solid ${useColorMain}">
-                      <img ${isnow ? "class='spinanim'" : ""} src="face.png" style="width:20px"/>
+                      <img ${isnow ? "class='spinanim'" : ""} src="face.png" style="width:20px;${notHere ? "opacity: 0.5" : ""}"/>
                     </div>
                     `;
                   }
                   else{
                     stuhtml += `
                     <div class="box boxshadow" style="border-radius: 12px;width:40%;margin:5px;font-size:14px;color:${useColorMain}">
-                      ${p["name"].includes("Trial") ? "<i>Trial Student</i>" :p["name"].split(" ")[0] + " " + p["name"].split(" ")[1].substring(0,1) + "."}
+                      <span style="${notHere ? "text-decoration: line-through" : ""}">${p["name"].includes("Trial") ? "<i>Trial Student</i>" :p["name"].split(" ")[0] + " " + p["name"].split(" ")[1].substring(0,1) + "."}</span>
+                      
                     </div>
                     `;
                   }
